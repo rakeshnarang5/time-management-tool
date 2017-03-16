@@ -39,7 +39,7 @@ func timeconv(pomo int) (int, int) {
 	return hh, mm
 }
 
-func (t *TaskMap) status() {
+func (t *TaskMap) status(flag bool) {
 	fmt.Printf("Total tasks: %d\n\n", t.Count)
 	var str string
 	for key, tsk := range t.Tasks {
@@ -48,7 +48,9 @@ func (t *TaskMap) status() {
 		str += fmt.Sprintf("%s. [%s] [%02d:%02d]\n",key, tsk.Name, hh, mm)
 	}
 	fmt.Println(str)
+	if flag{
 	Notify(str)
+	}
 }
 
 func (t *TaskMap) update() {
@@ -56,14 +58,14 @@ func (t *TaskMap) update() {
 	fmt.Println("Press 1 if you work on an existing task\nPress 2 if you worked on a new task\n")
 	input, _ := reader.ReadString('\n')
 	if input == "1\n" {
-		t.status()
+		t.status(false)
 		fmt.Println("Which task did you work on?")
 		chc,_ := reader.ReadString('\n')
 		tsk := t.Tasks[chc[:len(chc)-1]]
 		tsk.Count++
 		t.Tasks[chc[:len(chc)-1]] = tsk
 		fmt.Println("updated!")
-		t.status()
+		t.status(true)
 	}
 	if input == "2\n" {
 		t.addTask()
@@ -148,7 +150,7 @@ func menu(t *TaskMap) {
 		fmt.Println("Choose an Action:-\nPress 1 to see current tasks\nPress 2 to start working\nPress 3 to end the day")
 		input, _ := reader.ReadString('\n')
 		if input == "1\n" {
-			t.status()
+			t.status(true)
 		}
 		if input == "2\n" {
 			t.timer("work")
