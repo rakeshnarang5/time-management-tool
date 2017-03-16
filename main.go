@@ -48,7 +48,7 @@ func (t *TaskMap) status() {
 		str += fmt.Sprintf("%s. [%s] [%02d:%02d]\n",key, tsk.Name, hh, mm)
 	}
 	fmt.Println(str)
-	go Notify(str)
+	Notify(str)
 }
 
 func (t *TaskMap) update() {
@@ -74,6 +74,7 @@ func (t *TaskMap) update() {
 
 func Notify(msg string) {
 	notifize.Display("Status", msg, false, "/home/nagarro/workspace/src/timeManager/img/time.jpg")
+	res.SendMessage(msg)
 }
 
 func (t *TaskMap) timer(tsk string) {
@@ -86,12 +87,10 @@ func (t *TaskMap) timer(tsk string) {
 	timer := time.NewTimer(d)
 	<-timer.C 
 	if tsk == "work" {
-		go Notify("Timer finished!\nWhat did you work on?")
-		res.SendMessage("Timer finished!\nWhat did you work on?")
+		Notify("Timer finished!\nWhat did you work on?")
 		t.update()
 	} else if tsk == "break" {
-		go Notify("Break over!\nGet back to work!")
-		res.SendMessage("Break over!\nGet back to work!")
+		Notify("Break over!\nGet back to work!")
 	}
 }
 
