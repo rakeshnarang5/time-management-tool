@@ -1,16 +1,16 @@
 package main
 
 import (
+	"./res"
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"github.com/ctcpip/notifize"
 	"io/ioutil"
 	"os"
-	"./res"
 	"strconv"
 	"sync"
 	"time"
-	"github.com/ctcpip/notifize"
 )
 
 type Task struct {
@@ -45,11 +45,11 @@ func (t *TaskMap) status(flag bool) {
 	for key, tsk := range t.Tasks {
 		hh, mm := timeconv(tsk.Count)
 		//fmt.Printf("Key: %s\nName: %s\nSessions: %d\nTime Spent: %02d:%02d\n\n",key, tsk.Name,tsk.Count, hh, mm)
-		str += fmt.Sprintf("%s. [%s] [%02d:%02d]\n",key, tsk.Name, hh, mm)
+		str += fmt.Sprintf("%s. [%s] [%02d:%02d]\n", key, tsk.Name, hh, mm)
 	}
 	fmt.Println(str)
-	if flag{
-	Notify(str)
+	if flag {
+		Notify(str)
 	}
 }
 
@@ -60,7 +60,7 @@ func (t *TaskMap) update() {
 	if input == "1\n" {
 		t.status(false)
 		fmt.Println("Which task did you work on?")
-		chc,_ := reader.ReadString('\n')
+		chc, _ := reader.ReadString('\n')
 		tsk := t.Tasks[chc[:len(chc)-1]]
 		tsk.Count++
 		t.Tasks[chc[:len(chc)-1]] = tsk
@@ -75,6 +75,9 @@ func (t *TaskMap) update() {
 }
 
 func Notify(msg string) {
+	if msg == "" {
+		msg = "No tasks to show!"
+	}
 	notifize.Display("Status", msg, false, "/home/nagarro/workspace/src/timeManager/img/time.jpg")
 	res.SendMessage(msg)
 }
@@ -87,7 +90,7 @@ func (t *TaskMap) timer(tsk string) {
 		d = time.Second * 10
 	}
 	timer := time.NewTimer(d)
-	<-timer.C 
+	<-timer.C
 	if tsk == "work" {
 		Notify("Timer finished!\nWhat did you work on?")
 		t.update()
@@ -98,7 +101,7 @@ func (t *TaskMap) timer(tsk string) {
 
 func (t *TaskMap) saveState() {
 	m, _ := json.Marshal(t)
-	ioutil.WriteFile("./task.json",m,0755)
+	ioutil.WriteFile("./task.json", m, 0755)
 }
 
 func main() {
@@ -166,6 +169,6 @@ func menu(t *TaskMap) {
 func initializeTaskMap() *TaskMap {
 	var taskmap TaskMap
 	taskmap.Tasks = make(map[string]Task)
-	taskmap.Count = 3
+	taskmap.Count = 0
 	return &taskmap
 }
