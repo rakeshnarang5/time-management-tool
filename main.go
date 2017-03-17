@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	work       = time.Minute * 25
-	shortBreak = time.Minute * 10
-	longBreak  = time.Minute * 30
+	work       = time.Second * 1
+	shortBreak = time.Second * 1
+	longBreak  = time.Second * 1
 )
 
 type Task struct {
@@ -39,20 +39,22 @@ func (t *TaskMap) addTask() {
 	t.Tasks[key] = Task{name[:len(name)-1], 1}
 }
 
-func timeconv(pomo int) (int, int) {
-	min := pomo * 25
-	hh := min / 60
-	mm := min % 60
-	return hh, mm
+func timeconv(pomo int) time.Duration {
+	var retVal time.Duration
+	for pomo > 0 {
+		retVal += work
+		pomo--
+	}
+	return retVal
 }
 
 func (t *TaskMap) status(flag bool) {
-	fmt.Printf("Total tasks: %d, Sessions: %d\n\n", t.Count, t.Session)
+	fmt.Printf("Total tasks: %d, Sessions: %d\n", t.Count, t.Session)
 	var str string
-	for key, tsk := range t.Tasks {
-		hh, mm := timeconv(tsk.Count)
+	for _, tsk := range t.Tasks {
+		totalTime := timeconv(tsk.Count)
 		//fmt.Printf("Key: %s\nName: %s\nSessions: %d\nTime Spent: %02d:%02d\n\n",key, tsk.Name,tsk.Count, hh, mm)
-		str += fmt.Sprintf("%s. [%s] [%02d:%02d]\n", key, tsk.Name, hh, mm)
+		str += fmt.Sprintf("%s ~ %v ~ %d", tsk.Name, totalTime, tsk.Count)
 	}
 	fmt.Println(str)
 	if flag {
@@ -60,10 +62,40 @@ func (t *TaskMap) status(flag bool) {
 	}
 }
 
+func ticker(d time.Duration) {
+	for d >= time.Second*0 {
+		print("\033[H\033[2J")
+		if d == time.Second*0 {
+			fmt.Println("timer finished!")
+		} else {
+			fmt.Println(d)
+		}
+		d -= time.Second * 1
+		time.Sleep(time.Second * 1)
+	}
+}
+
 func (t *TaskMap) update() {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Press 1 if you work on an existing task\nPress 2 if you worked on a new task\n")
-	input, _ := reader.ReadString('\n')
+	if len(t.Tasks) == 0 {
+		fmt.Println("Press 2 to enter a new task")
+	} else {
+		fmt.Println("Press 1 if you work on an existing task\nPress 2 if you worked on a new task")
+	}
+
+	flag := false
+	var input string
+
+	for !flag {
+		input, _ = reader.ReadString('\n')
+
+		if input == "1\n" || input == "2\n" {
+			flag = true
+		} else {
+			fmt.Println("wrong input")
+		}
+	}
+
 	if input == "1\n" {
 		t.status(false)
 		fmt.Println("Which task did you work on?")
@@ -102,9 +134,8 @@ func (t *TaskMap) timer(tsk string) {
 			d = shortBreak
 		}
 	}
-	// } else if tsk == "break" {
-	// 	d = time.Second * 10
-	// }
+
+	go ticker(d)
 
 	timer := time.NewTimer(d)
 	<-timer.C
@@ -142,7 +173,7 @@ func main() {
 		taskmap.saveState()
 	}
 
-	fmt.Println(taskmap)
+	//fmt.Println(taskmap)
 
 	var wg sync.WaitGroup
 
