@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./res"
+	//"./res"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -13,14 +13,21 @@ import (
 	"time"
 )
 
+var (
+	work       = time.Minute * 25
+	shortBreak = time.Minute * 10
+	longBreak  = time.Minute * 30
+)
+
 type Task struct {
 	Name  string
 	Count int
 }
 
 type TaskMap struct {
-	Tasks map[string]Task
-	Count int
+	Tasks   map[string]Task
+	Count   int
+	Session int
 }
 
 func (t *TaskMap) addTask() {
@@ -40,7 +47,7 @@ func timeconv(pomo int) (int, int) {
 }
 
 func (t *TaskMap) status(flag bool) {
-	fmt.Printf("Total tasks: %d\n\n", t.Count)
+	fmt.Printf("Total tasks: %d, Sessions: %d\n\n", t.Count, t.Session)
 	var str string
 	for key, tsk := range t.Tasks {
 		hh, mm := timeconv(tsk.Count)
@@ -79,23 +86,36 @@ func Notify(msg string) {
 		msg = "No tasks to show!"
 	}
 	notifize.Display("Status", msg, false, "/home/nagarro/workspace/src/timeManager/img/time.jpg")
-	res.SendMessage(msg)
+	//res.SendMessage(msg)
 }
 
 func (t *TaskMap) timer(tsk string) {
 	var d time.Duration
 	if tsk == "work" {
-		d = time.Second * 20
+		d = work
 	} else if tsk == "break" {
-		d = time.Second * 10
+		if t.Session%4 == 0 {
+			tsk = "longBreak"
+			d = longBreak
+		} else {
+			tsk = "shortBreak"
+			d = shortBreak
+		}
 	}
+	// } else if tsk == "break" {
+	// 	d = time.Second * 10
+	// }
+
 	timer := time.NewTimer(d)
 	<-timer.C
 	if tsk == "work" {
 		Notify("Timer finished!\nWhat did you work on?")
+		t.Session++
 		t.update()
-	} else if tsk == "break" {
-		Notify("Break over!\nGet back to work!")
+	} else if tsk == "shortBreak" {
+		Notify("short break finished")
+	} else if tsk == "longBreak" {
+		Notify("long break finished")
 	}
 }
 
@@ -115,6 +135,11 @@ func main() {
 	if input == "Y\n" {
 		data, _ := ioutil.ReadFile("./task.json")
 		json.Unmarshal(data, &taskmap)
+		taskmap.Session = 0
+	}
+
+	if input == "n\n" {
+		taskmap.saveState()
 	}
 
 	fmt.Println(taskmap)
@@ -170,5 +195,6 @@ func initializeTaskMap() *TaskMap {
 	var taskmap TaskMap
 	taskmap.Tasks = make(map[string]Task)
 	taskmap.Count = 0
+	taskmap.Session = 0
 	return &taskmap
 }
