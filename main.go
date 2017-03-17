@@ -53,7 +53,6 @@ func (t *TaskMap) status(flag bool) {
 	var str string
 	for _, tsk := range t.Tasks {
 		totalTime := timeconv(tsk.Count)
-		//fmt.Printf("Key: %s\nName: %s\nSessions: %d\nTime Spent: %02d:%02d\n\n",key, tsk.Name,tsk.Count, hh, mm)
 		str += fmt.Sprintf("%s ~ %v ~ %d", tsk.Name, totalTime, tsk.Count)
 	}
 	fmt.Println(str)
@@ -161,7 +160,6 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Would you like to continue with saved tasks (Y/n)")
 	input, _ := reader.ReadString('\n')
-	//fmt.Println([]byte(input))
 
 	if input == "Y\n" {
 		data, _ := ioutil.ReadFile("./task.json")
@@ -173,33 +171,12 @@ func main() {
 		taskmap.saveState()
 	}
 
-	//fmt.Println(taskmap)
-
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 
 	go menu(taskmap)
 
-	//fmt.Println(taskmap)
-
-	// task1 := Task{"first task", 1}
-	// task2 := Task{"second task", 2}
-	// task3 := Task{"third task", 3}
-	// taskmap.Tasks["1"] = task1
-	// taskmap.Tasks["2"] = task2
-	// taskmap.Tasks["3"] = task3
-	// fmt.Println(taskmap.Tasks)
-	// m, _ := json.Marshal(taskmap.Tasks)
-	// fmt.Println(string(m))
-	// x, _ := json.Marshal(taskmap)
-	// fmt.Println(string(x))
-	// ioutil.WriteFile("./task.json", x, 0755)
-	//unmarshal
-	//var y TaskMap
-	// data, _ := ioutil.ReadFile("./task.json")
-	// json.Unmarshal(data, &y)
-	// fmt.Println(y)
 	wg.Wait()
 }
 
