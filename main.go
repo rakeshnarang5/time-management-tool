@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	work       = time.Second * 1
-	shortBreak = time.Second * 1
-	longBreak  = time.Second * 1
+	work       = time.Minute * 25
+	shortBreak = time.Minute * 10
+	longBreak  = time.Minute * 30
 )
 
 type Task struct {
