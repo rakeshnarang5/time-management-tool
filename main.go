@@ -15,8 +15,12 @@ import (
 
 var (
 	work       = time.Minute * 25
-	shortBreak = time.Minute * 10
-	longBreak  = time.Minute * 30
+	shortBreak = time.Minute * 5
+	longBreak  = time.Minute * 20
+	//for testing
+	// work       = time.Second * 1
+	// shortBreak = time.Second * 1
+	// longBreak  = time.Second * 1
 )
 
 type Task struct {
@@ -53,7 +57,7 @@ func (t *TaskMap) status(flag bool) {
 	var str string
 	for _, tsk := range t.Tasks {
 		totalTime := timeconv(tsk.Count)
-		str += fmt.Sprintf("%s ~ %v ~ %d", tsk.Name, totalTime, tsk.Count)
+		str += fmt.Sprintf("[%s] [%v] [%d]\n", tsk.Name, totalTime, tsk.Count)
 	}
 	fmt.Println(str)
 	if flag {
