@@ -1,0 +1,15 @@
+{
+	"ImportPath": "time-management-tool",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v79",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/ctcpip/notifize",
+			"Comment": "v1.0.0-2-g020aa0f",
+			"Rev": "020aa0fb34dd1663c9bc0685046ff73a70d8e070"
+		}
+	]
+}
