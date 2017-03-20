@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"./res"
+	"./res"
 	"bufio"
 	"encoding/json"
 	"fmt"
@@ -72,7 +72,7 @@ func (t *TaskMap) status(flag bool) {
 	}
 	fmt.Println(str)
 	if flag {
-		Notify(str)
+		Notify(str, false)
 	}
 }
 
@@ -134,12 +134,33 @@ func (t *Task) addEntry(comment string) {
 	t.Count = append(t.Count, comment)
 }
 
-func Notify(msg string) {
+func Notify(msg string, sendEmail bool) {
 	if msg == "" {
 		msg = "No tasks to show!"
 	}
 	notifize.Display("Status", msg, false, "/home/nagarro/workspace/src/timeManager/img/time.jpg")
 	//res.SendMessage(msg)
+	if sendEmail {
+		res.SendEmail(msg, "rakeshnarang5@gmail.com")
+	}
+}
+
+func (t *TaskMap) prepareEmail() string {
+	var retVal string
+	for key, val := range t.Tasks {
+		retVal += fmt.Sprintf("%s\n%s\n\n", key, val.Name)
+		for _, oneComment := range val.Count {
+			retVal += fmt.Sprintf("%s\n\n", oneComment)
+		}
+	}
+	retVal += fmt.Sprintf("JSON:-\n\n")
+	retVal += fmt.Sprintf("%s\n\n", t.returnJSON())
+	return retVal
+}
+
+func (t *TaskMap) returnJSON() string {
+	m, _ := json.MarshalIndent(t, "", "    ")
+	return string(m)
 }
 
 func (t *TaskMap) timer(tsk string) {
@@ -161,13 +182,13 @@ func (t *TaskMap) timer(tsk string) {
 	timer := time.NewTimer(d)
 	<-timer.C
 	if tsk == "work" {
-		Notify("Timer finished!\nWhat did you work on?")
+		Notify("Timer finished!\nWhat did you work on?", false)
 		t.Session++
 		t.update()
 	} else if tsk == "shortBreak" {
-		Notify("short break finished")
+		Notify("short break finished", false)
 	} else if tsk == "longBreak" {
-		Notify("long break finished")
+		Notify("long break finished", false)
 	}
 }
 
@@ -205,7 +226,7 @@ func main() {
 func menu(t *TaskMap) {
 	for {
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Println("Choose an Action:-\nPress 1 to see current tasks\nPress 2 to start working\nPress 3 to end the day")
+		fmt.Println("Choose an Action:-\nPress 1 to see current tasks\nPress 2 to start working\nPress 3 to end the day\nPress 4 to email current report")
 		input, _ := reader.ReadString('\n')
 		if input == "1\n" {
 			t.status(true)
@@ -216,6 +237,10 @@ func menu(t *TaskMap) {
 		if input == "3\n" {
 			t.saveState()
 			os.Exit(0)
+		}
+		if input == "4\n" {
+			msg := t.prepareEmail()
+			Notify(msg, true)
 		}
 	}
 
