@@ -172,7 +172,7 @@ func (t *TaskMap) timer(tsk string) {
 }
 
 func (t *TaskMap) saveState() {
-	m, _ := json.Marshal(t)
+	m, _ := json.MarshalIndent(t, "", "    ")
 	ioutil.WriteFile("./task.json", m, 0755)
 }
 

@@ -1,1 +1,18 @@
-{"Tasks":{"1":{"Name":"Task1","Count":["Entry1","Task2"]},"2":{"Name":"Task2","Count":["Entry1"]}},"Count":2,"Session":3}
+{
+ "Tasks": {
+  "1": {
+   "Name": "Task1",
+   "Count": [
+    "Entry1"
+   ]
+  },
+  "2": {
+   "Name": "Task2",
+   "Count": [
+    "Entry2"
+   ]
+  }
+ },
+ "Count": 2,
+ "Session": 2
+}
