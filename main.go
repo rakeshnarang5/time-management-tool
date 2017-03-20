@@ -14,22 +14,22 @@ import (
 )
 
 var (
-	work       = time.Minute * 25
-	shortBreak = time.Minute * 5
-	longBreak  = time.Minute * 20
-	//for testing
-	// work       = time.Second * 25
-	// shortBreak = time.Second * 5
-	// longBreak  = time.Second * 10
+	// work       = time.Minute * 25
+	// shortBreak = time.Minute * 5
+	// longBreak  = time.Minute * 20
+
+	work       = time.Second * 1
+	shortBreak = time.Second * 1
+	longBreak  = time.Second * 1
 )
 
 type Task struct {
 	Name  string
-	Count int
+	Count []string
 }
 
 type TaskMap struct {
-	Tasks   map[string]Task
+	Tasks   map[string]*Task
 	Count   int
 	Session int
 }
@@ -38,9 +38,20 @@ func (t *TaskMap) addTask() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Name your task")
 	name, _ := reader.ReadString('\n')
+	fmt.Println("(comment) What did you do?")
+	comment, _ := reader.ReadString('\n')
 	t.Count++
+	tsk := initializeTask(name[:len(name)-1], comment[:len(comment)-1])
 	key := strconv.Itoa(t.Count)
-	t.Tasks[key] = Task{name[:len(name)-1], 1}
+	t.Tasks[key] = tsk
+}
+
+func initializeTask(name string, comment string) *Task {
+	var retVal Task
+	retVal.Count = make([]string, 0, 0)
+	retVal.Name = name
+	retVal.Count = append(retVal.Count, comment)
+	return &retVal
 }
 
 func timeconv(pomo int) time.Duration {
@@ -55,9 +66,9 @@ func timeconv(pomo int) time.Duration {
 func (t *TaskMap) status(flag bool) {
 	fmt.Printf("Total tasks: %d, Sessions: %d\n", t.Count, t.Session)
 	var str string
-	for _, tsk := range t.Tasks {
-		totalTime := timeconv(tsk.Count)
-		str += fmt.Sprintf("[%s] [%v] [%d]\n", tsk.Name, totalTime, tsk.Count)
+	for key, tsk := range t.Tasks {
+		totalTime := timeconv(len(tsk.Count))
+		str += fmt.Sprintf("[K: %s] [N: %s] [T: %v] [C: %d]\n", key, tsk.Name, totalTime, len(tsk.Count))
 	}
 	fmt.Println(str)
 	if flag {
@@ -104,7 +115,10 @@ func (t *TaskMap) update() {
 		fmt.Println("Which task did you work on?")
 		chc, _ := reader.ReadString('\n')
 		tsk := t.Tasks[chc[:len(chc)-1]]
-		tsk.Count++
+		fmt.Println("(comment) What did you do?")
+		comment, _ := reader.ReadString('\n')
+		tsk.addEntry(comment[:len(comment)-1])
+		//tsk.Count++
 		t.Tasks[chc[:len(chc)-1]] = tsk
 		fmt.Println("updated!")
 		t.status(true)
@@ -114,6 +128,10 @@ func (t *TaskMap) update() {
 	}
 	t.saveState()
 	t.timer("break")
+}
+
+func (t *Task) addEntry(comment string) {
+	t.Count = append(t.Count, comment)
 }
 
 func Notify(msg string) {
@@ -205,7 +223,7 @@ func menu(t *TaskMap) {
 
 func initializeTaskMap() *TaskMap {
 	var taskmap TaskMap
-	taskmap.Tasks = make(map[string]Task)
+	taskmap.Tasks = make(map[string]*Task)
 	taskmap.Count = 0
 	taskmap.Session = 0
 	return &taskmap
