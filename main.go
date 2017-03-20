@@ -18,9 +18,9 @@ var (
 	shortBreak = time.Minute * 5
 	longBreak  = time.Minute * 20
 	//for testing
-	// work       = time.Second * 1
-	// shortBreak = time.Second * 1
-	// longBreak  = time.Second * 1
+	// work       = time.Second * 25
+	// shortBreak = time.Second * 5
+	// longBreak  = time.Second * 10
 )
 
 type Task struct {
