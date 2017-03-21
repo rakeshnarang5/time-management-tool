@@ -148,20 +148,20 @@ func Notify(msg string, sendEmail bool) {
 func (t *TaskMap) prepareEmail() string {
 	var retVal string
 	for key, val := range t.Tasks {
-		retVal += fmt.Sprintf("%s\n%s\n\n", key, val.Name)
+		retVal += fmt.Sprintf("<p>%s\n%s\n\n</p>", key, val.Name)
 		for _, oneComment := range val.Count {
-			retVal += fmt.Sprintf("%s\n\n", oneComment)
+			retVal += fmt.Sprintf("<p>%s\n\n</p>", oneComment)
 		}
 	}
-	retVal += fmt.Sprintf("JSON:-\n\n")
-	retVal += fmt.Sprintf("%s\n\n", t.returnJSON())
+	// retVal += fmt.Sprintf("<h1>JSON:-\n\n</h1>")
+	// retVal += fmt.Sprintf("<p>%s\n\n</p>", t.returnJSON())
 	return retVal
 }
 
-func (t *TaskMap) returnJSON() string {
-	m, _ := json.MarshalIndent(t, "", "    ")
-	return string(m)
-}
+// func (t *TaskMap) returnJSON() string {
+// 	m, _ := json.MarshalIndent(t, "", "    ")
+// 	return string(m)
+// }
 
 func (t *TaskMap) timer(tsk string) {
 	var d time.Duration
