@@ -147,14 +147,19 @@ func Notify(msg string, sendEmail bool) {
 
 func (t *TaskMap) prepareEmail() string {
 	var retVal string
+	retVal += "<h1>Current Complete Report:-</h1>"
+	retVal += "<table border=\"1\"><thead><th>Key</th><th>Name</th><th>Sessions</th><th>Entries</th></thead><tbody><tbody>"
+
 	for key, val := range t.Tasks {
-		retVal += fmt.Sprintf("<p>%s\n%s\n\n</p>", key, val.Name)
-		for _, oneComment := range val.Count {
-			retVal += fmt.Sprintf("<p>%s\n\n</p>", oneComment)
+		retVal += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>", key, val.Name, len(val.Count), val.Count[0])
+		if len(val.Count) > 1 {
+			for i := 1; i < len(val.Count); i++ {
+				retVal += fmt.Sprintf("<tr><td></td><td></td><td></td><td>%s</td></tr>", val.Count[i])
+			}
 		}
 	}
-	// retVal += fmt.Sprintf("<h1>JSON:-\n\n</h1>")
-	// retVal += fmt.Sprintf("<p>%s\n\n</p>", t.returnJSON())
+
+	retVal += "</tbody></table>"
 	return retVal
 }
 
